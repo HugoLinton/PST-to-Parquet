@@ -1,7 +1,6 @@
 package com.hugolinton;
 
 import com.pff.PSTException;
-import com.pff.PSTFile;
 import com.pff.PSTFolder;
 import com.pff.PSTMessage;
 
@@ -9,19 +8,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class ExpandPSTFiles {
-//    public static void main(final String[] args) {
-//        new com.hugolinton.ExpandPSTFiles(args[0]);
-//    }
-//
-//    public com.hugolinton.ExpandPSTFiles(final String filename) {
-//        try {
-//            final PSTFile pstFile = new PSTFile(filename);
-//            System.out.println(pstFile.getMessageStore().getDisplayName());
-//            this.processFolder(pstFile.getRootFolder());
-//        } catch (final Exception err) {
-//            err.printStackTrace();
-//        }
-//    }
 
     int depth = -1;
     private ArrayList<PSTMessage> messages = new ArrayList<PSTMessage>();

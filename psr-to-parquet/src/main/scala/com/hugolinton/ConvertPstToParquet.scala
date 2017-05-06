@@ -13,16 +13,13 @@ import scala.collection.JavaConversions._
   */
 object ConvertPstToParquet extends Logging {
 
-  //Just to run Locally
-
-
   def main(args: Array[String]): Unit = {
 
     if(args.length != 3){
       Console.err.println("Usage: ConvertPstToParquet <PST File Path> <Export Folder><Hadoop Home Directory>")
     }
 
-    val Array(inputFolder, parquetFolder, hadoopHome) = args
+    val Array(pstFile, parquetFolder, hadoopHome) = args
 
     System.setProperty("hadoop.home.dir", hadoopHome)
 
@@ -30,10 +27,7 @@ object ConvertPstToParquet extends Logging {
     val sparkContext = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sparkContext)
 
-    pstToParquet(sparkContext,sqlContext,inputFolder,parquetFolder)
-
-//    ParquetQuery.queryData(sqlContext,parquetFolder)
-
+    pstToParquet(sparkContext,sqlContext,pstFile,parquetFolder)
   }
 
   def pstToParquet(sparkContext : SparkContext,sqlContext : SQLContext, filePath : String, outputFolder : String) : String = {

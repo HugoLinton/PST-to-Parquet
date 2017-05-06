@@ -3,8 +3,6 @@ package com.hugolinton.model
 import java.util.UUID
 
 import com.pff.PSTMessage
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{ArrayType, StringType, StructField, StructType}
 
 /**
