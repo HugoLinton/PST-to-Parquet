@@ -18,12 +18,7 @@ object EmailModel {
     (StructField("ccTo", ArrayType(StringType)))
   ))
 
-  var totalEmails = 0
-  var length = 0
-
   def pstToModel(pst : PSTMessage) = {
-    totalEmails += 1
-    length = length + pst.getBody.length
     val uniqueID = UUID.randomUUID().toString();
     val to = pst.getDisplayTo.replaceAll("""[.,\/#!$%\^&\*;:{}=\-_`~()\s]""", "").toLowerCase.split(";")
     val cc = pst.getDisplayCC.replaceAll("""[.,\/#!$%\^&\*;:{}=\-_`~()\s]""", "").toLowerCase.split(";")

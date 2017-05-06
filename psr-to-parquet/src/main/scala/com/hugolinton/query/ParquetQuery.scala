@@ -1,5 +1,6 @@
 package com.hugolinton.query
 
+import com.hugolinton.model.QueryReport
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions._
@@ -12,7 +13,11 @@ object ParquetQuery {
 
   def main(args: Array[String]): Unit = {
 
-    val parquetFolder = args(0)
+    if(args.length != 1){
+      Console.err.println("Usage: ParquetQuery <Parquet Parent Folder>")
+    }
+
+    val Array(parquetFolder) = args
 
     val sparkConf = new org.apache.spark.SparkConf().setAppName("org.sainsburys.test").setMaster("local");
     val sparkContext = new SparkContext(sparkConf)
@@ -22,7 +27,7 @@ object ParquetQuery {
 
   }
 
-  def queryData(sqlContext : SQLContext, parquetDirectory : String) = {
+  def queryData(sqlContext : SQLContext, parquetDirectory : String) : QueryReport = {
 
 
     val folders = new java.io.File(parquetDirectory).listFiles
@@ -53,7 +58,7 @@ object ParquetQuery {
 
 
     try {
-      var record = 0
+      var record = 1
       val averageEmailLength = totalEmailCharacters.apply(0) / mergedParquet.count()
       println("Email Average Length is: " + averageEmailLength)
       println("Top 150 Recipents: ")
@@ -65,5 +70,6 @@ object ParquetQuery {
       case e: ClassCastException => error("Total not a Long")
       case ofb: IndexOutOfBoundsException => error("Df most likely empty(Index out of bounds)")
     }
+    QueryReport(totalEmailCharacters.apply(0) / mergedParquet.count(), sorted)
   }
 }
