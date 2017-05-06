@@ -5,7 +5,7 @@ import java.util.UUID
 import com.pff.PSTMessage
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types.{ArrayType, StructField}
+import org.apache.spark.sql.types.{ArrayType, StringType, StructField, StructType}
 
 /**
   * Created by hugol on 09/10/2016.
@@ -13,6 +13,12 @@ import org.apache.spark.sql.types.{ArrayType, StructField}
 case class EmailModel (id : String, emailBody : String, sentTo : Array[String], ccTo : Array[String]) extends Product
 
 object EmailModel {
+
+  final val schema = StructType(Array(StructField("id", StringType, false),
+    (StructField("emailBody", StringType, false)),
+    (StructField("sentTo", ArrayType(StringType))),
+    (StructField("ccTo", ArrayType(StringType)))
+  ))
 
   var totalEmails = 0
   var length = 0
