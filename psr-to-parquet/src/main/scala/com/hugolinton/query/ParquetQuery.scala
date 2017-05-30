@@ -1,6 +1,7 @@
 package com.hugolinton.query
 
 import com.hugolinton.model.QueryReport
+import grizzled.slf4j.Logging
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions._
@@ -8,7 +9,7 @@ import org.apache.spark.sql.functions._
 /**
   * Created by hugol on 09/10/2016.
   */
-object ParquetQuery {
+object ParquetQuery extends Logging {
 
 
   def main(args: Array[String]): Unit = {
@@ -19,7 +20,7 @@ object ParquetQuery {
 
     val Array(parquetFolder) = args
 
-    val sparkConf = new org.apache.spark.SparkConf().setAppName("org.sainsburys.test").setMaster("local");
+    val sparkConf = new org.apache.spark.SparkConf().setAppName("enron-stats").setMaster("local");
     val sparkContext = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sparkContext)
 
