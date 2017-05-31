@@ -1,6 +1,6 @@
 package com.hugolinton
 
-import com.hugolinton.model.Transaction
+import com.hugolinton.model.{ReportItem, Transaction}
 import grizzled.slf4j.Logging
 
 import scala.io.Source
@@ -17,23 +17,6 @@ object CsvLoader extends Logging {
     }
 
     val Array(csvFilePath) = args
-//
-//    val sparkConf = new org.apache.spark.SparkConf().setAppName("hugo-linton-csv").setMaster("local");
-//    val sparkContext = new SparkContext(sparkConf)
-//    val sqlContext = new org.apache.spark.sql.SQLContext(sparkContext)
-//
-//    val df = sqlContext.read
-//      .format("com.databricks.spark.csv")
-//      .option("header", "true") // Use first line of all files as header
-//      .option("inferSchema", "true") // Automatically infer data types
-//      .load(csvFilePath)
-//
-//
-////    val q1 = getTransactionsGroupedByDay(df)
-////    q1.show(31)
-//
-//    val q2 =getAccountAverage(df)
-//    q2.show(1000)
 
 
     println("Calculate the Total Transactions per day")
@@ -43,6 +26,8 @@ object CsvLoader extends Logging {
 
     println("Calculate the average value of transactions per account for each type of transaction")
     getAccountAverage(transactions)
+
+    getAccountStatistics(transactions)
   }
 
   def getTransactions(path : String) : List[Transaction]= {
@@ -71,17 +56,54 @@ object CsvLoader extends Logging {
       })
     }
 
+  def getAccountStatistics( transactions : List[Transaction]) = {
+    val groupedByAccount = transactions.groupBy(trans => trans.accountId)
+    groupedByAccount.map(account => {
+      val days = account._2.sortBy(-_.transactionDay)
+      val maxDay = transactions.reduceLeft(ReportItem.maxTransactionDay).transactionDay + 1
+      val dayRange = List.range(1,maxDay)
+      dayRange.foreach(day => createDayReport(days,day))
+    })
+  }
+
+  def createDayReport(transactions : List[Transaction], reportDay : Int) : List[Transaction]  = {
+    val results = transactions.filter(day => transactions.head.transactionDay - 5 < day.transactionDay && reportDay != day.transactionDay)
+    val report = getReportString(results)
+    println(report)
+    removeDuplicates(transactions, transactions.head)
+  }
+
+  def removeDuplicates(transactions : List[Transaction], duplicate : Transaction) : List[Transaction] = {
+    transactions.filter(day => day.transactionDay != duplicate.transactionDay)
+  }
+
   def printMap(values : Map [String, Double]) = {
     val sortedValues = values.toSeq.sortBy(_._1)
     sortedValues.foreach(value => println(value.toString()))
   }
 
-//  def getTransactionsGroupedByDay( dataframe : DataFrame) = {
-//    dataframe.groupBy("transactionDay").agg(sum("transactionAmount"))
-//  }
-//
-//  def getAccountAverage( dataframe : DataFrame) = {
-//    dataframe.groupBy("accountId","category").agg(mean("transactionAmount"))
-//  }
+
+
+  def getReportString(transactions : List[Transaction]) : String = {
+    if (transactions.size > 0) {
+      val headTransaction = transactions.head
+      val maxTransaction = transactions.reduceLeft(ReportItem.maxTransactionAmount).transactionAmount
+      val avg = transactions.map(_.transactionAmount).sum / transactions.size
+      val categories = transactions.groupBy(x => x.category).filter(category => category._1 == "AA"
+        || category._1 == "CC"
+        || category._1 == "FF").map(x => (x._1, x._2.map(_.transactionAmount).sum))
+
+
+      "Day: " + headTransaction.transactionDay +
+        " Account ID: " + headTransaction.accountId +
+        " Maximum: " + maxTransaction +
+        " Average: " + avg +
+        " AA Total Value: " + categories.get("AA").getOrElse("N/A") +
+        " CC Total Value: " + categories.get("CC").getOrElse("N/A") +
+        " FF Total Value: " + categories.get("FF").getOrElse("N/A")
+    }else {
+      ""
+    }
+  }
 
 }
